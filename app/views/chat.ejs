@@ -80,21 +80,7 @@
 			
 			<div class="row participantes" id="participantes" style="display:none">
 				<div class="col-md-1"></div>
-				<div class="col-md-10">
-					<span class="participante">
-						<img src="images/ico_usuario.png" />
-						Jorge
-					</span>
-					
-					<span class="participante">
-						<img src="images/ico_usuario.png" />
-						José
-					</span>
-					
-					<span class="participante">
-						<img src="images/ico_usuario.png" />
-						Fernando
-					</span>
+				<div class="col-md-10" id="pessoas">
 				</div>
 				<div class="col-md-1"></div>
                 
@@ -104,16 +90,16 @@
 		<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
 			<div class="container">
 				<div class="panel-body campo-mensagem">
-					<form>
-						<div class="col-md-12">
-							<div class="input-group">
-								<input type="text" class="form-control" placeholder="Mensagem">
-								<span class="input-group-btn">
-									<button class="btn btn-default" type="button">></button>
-								</span>
-							</div>
+					<div class="col-md-12">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Mensagem" id="msg">
+							<input type="hidden" value="<%=dadosForm.apelido%>" id="apelido"> 
+							<input type="hidden" value="" id="apelidoAtualizado"> 
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button" id="enviar_msg">></button>
+							</span>
 						</div>
-					</form>
+					</div>
 				</div>
 			</div>
 		</nav>		
@@ -123,6 +109,18 @@
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var socket = io('http://localhost');
+
+			$('#enviar_msg').click( function(){
+				socket.emit(
+					'msgForServer',
+					{apelido: $('#apelido').val(), 
+					msg: $('#msg').val(),
+					apelidoAtualizado: $("#apelidoAtualizado").val()
+				})
+
+				$('#msg').val("");
+				$('#apelidoAtualizado').val(1);
+			})
 			
 			socket.on('msgForClient', (data) =>{
 				let html = ''
@@ -132,6 +130,17 @@
 				html += '</div>';
 
 				$('#dialogos').append(html);
+				window.scrollTo(0, document.body.scrollHeight)
+			})
+
+			socket.on('participantesForClient', (data) =>{
+				let html = ''
+				html += '<span class="participante">'
+					html += '<img src="images/ico_usuario.png">';
+					html += data.apelido
+				html += '</span>';
+
+				$('#pessoas').append(html);
 			})
 		</script>
 	</body>
